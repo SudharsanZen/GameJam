@@ -15,6 +15,9 @@ public class playerMovement : MonoBehaviour
 
     public float moveSpeed=2;
     public GameObject lookAT;
+    public LayerMask layerMask;
+
+   
     // Start is called before the first frame update
     void Start()
     {
@@ -27,6 +30,8 @@ public class playerMovement : MonoBehaviour
         getParam();
         handleMovement();
         handleRotation();
+      
+
         setParam();
 
 
@@ -89,24 +94,33 @@ public class playerMovement : MonoBehaviour
 
     void aimRot()
     {
-        Plane plane = new Plane(Vector3.up, 0);
-        Vector3 worldPosition=transform.position+moveDir;
-        float distance;
+        Vector3 worldPosition;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Debug.DrawRay(ray.origin, ray.direction * 10);
-        if (plane.Raycast(ray, out distance))
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100, layerMask))
         {
-            
-            worldPosition = ray.GetPoint(distance);
+
+            worldPosition = hit.point;
             if (((transform.position - worldPosition).magnitude > 0.5f))
                 lookAT.transform.position = worldPosition;
             else
             {
-                lookAT.transform.position =transform.position+(worldPosition-transform.position).normalized*0.5f;
+                lookAT.transform.position = transform.position + (worldPosition - transform.position).normalized * 0.5f;
             }
+            Vector3 lookDir = (worldPosition - transform.position).normalized;
+            lookDir.y = 0;
+            Quaternion lookRot = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 10);
         }
+        else
+        {
+            lookAT.transform.position = ray.origin+ray.direction*100;
+        }
+
         
-        Quaternion lookRot = Quaternion.LookRotation((worldPosition-transform.position).normalized);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 10);
+
+
+
     }
 }
