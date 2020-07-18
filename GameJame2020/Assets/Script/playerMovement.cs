@@ -102,7 +102,7 @@ public class playerMovement : MonoBehaviour
                 lookAT.transform.position = worldPosition;
             else
             {
-                lookAT.transform.position =transform.position+(world-transform.position).normalized*0.5f;
+                lookAT.transform.position =transform.position+(worldPosition-transform.position).normalized*0.5f;
             }
         }
         
