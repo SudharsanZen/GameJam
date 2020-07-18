@@ -60,15 +60,13 @@ public class gun1 : MonoBehaviour
 
             if (Input.GetButton(InputStatics.fire))
             {
+                Transform spine = anim.GetBoneTransform(HumanBodyBones.Spine);
+                spine.rotation = Quaternion.Lerp(spine.rotation, transform.rotation * Quaternion.Euler(Random.Range(-40, 0), Random.Range(-40, 40), Random.Range(-40, 40)), Time.deltaTime * 20);
                 MuzzleSound();
                 transform.rotation = Quaternion.Lerp(transform.rotation, transform.rotation * Quaternion.Euler(Random.Range(-40, 0), Random.Range(-40, 40), Random.Range(-40, 40)), Time.deltaTime * 80);
             }
 
-            if (Input.GetButton(InputStatics.fire))
-            {
-                Transform spine = anim.GetBoneTransform(HumanBodyBones.Spine);
-                spine.rotation = Quaternion.Lerp(spine.rotation, transform.rotation * Quaternion.Euler(Random.Range(-40, 0), Random.Range(-40, 40), Random.Range(-40, 40)), Time.deltaTime * 20);
-            }
+           
         }
     }
 }
