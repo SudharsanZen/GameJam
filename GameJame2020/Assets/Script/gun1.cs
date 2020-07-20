@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class gun1 : MonoBehaviour
 {
-
+    public float spinCoolDownTime=0.5f;
+    float lastSpineeffectedTime;
     public GameObject bullet;
     public Transform leftHandIkPose;
     public Transform rightHandIkPose;
@@ -16,11 +17,13 @@ public class gun1 : MonoBehaviour
     public List<GameObject> muzzleFlashes;
     public List<AudioClip> muzzleSounds;
     public GameObject player;
+    playerMovement plScript;
     Animator anim;
     AudioSource audio;
 
     private void Start()
     {
+        plScript = player.GetComponent<playerMovement>();
         anim = player.GetComponent<Animator>();
         audio =GetComponent<AudioSource>();
     }
@@ -30,6 +33,10 @@ public class gun1 : MonoBehaviour
         fire = Input.GetButton(InputStatics.fire);
         if(aiming)
             handleFiering();
+       
+        if (plScript.currSpine < plScript.maxSpine && lastSpineeffectedTime + spinCoolDownTime < Time.time)
+            plScript.currSpine = Mathf.LerpUnclamped(plScript.currSpine, 0, Time.deltaTime * 3);
+       
     }
     void MuzzleSound()
     {
@@ -40,10 +47,17 @@ public class gun1 : MonoBehaviour
     {
         if (fire && Time.time > nextSHootTime)
         {
+            lastSpineeffectedTime = Time.time;
+            plScript.currHealth -= 0.1f;
+            plScript.currHealth = Mathf.Clamp(plScript.currHealth, 0, plScript.maxHealth);
+
+            plScript.currSpine += 3;
+            plScript.currSpine = Mathf.Clamp(plScript.currSpine, 0, plScript.maxSpine);
+
 
             GameObject muzzle = Instantiate(muzzleFlashes[Random.Range(0, muzzleFlashes.Count)]);
             muzzle.transform.position = transform.position + transform.forward * 0.8f;
-            muzzle.transform.rotation = transform.rotation * Quaternion.Euler(180,0,0);
+            muzzle.transform.rotation = transform.rotation * Quaternion.Euler(180, 0, 0);
             muzzle.transform.SetParent(transform);
             GameObject b = Instantiate(bullet);
             b.transform.position = transform.position + transform.forward * 0.8f;
@@ -66,7 +80,8 @@ public class gun1 : MonoBehaviour
                 transform.rotation = Quaternion.Lerp(transform.rotation, transform.rotation * Quaternion.Euler(Random.Range(-40, 0), Random.Range(-40, 40), Random.Range(-40, 40)), Time.deltaTime * 80);
             }
 
-           
+
         }
+       
     }
 }

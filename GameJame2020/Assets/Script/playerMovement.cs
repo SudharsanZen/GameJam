@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class playerMovement : MonoBehaviour
@@ -11,6 +12,14 @@ public class playerMovement : MonoBehaviour
     bool aiming;
     float horizontal;
     float vertical;
+    public float currHealth;
+    public float maxHealth;
+    public float currSpine;
+    public float maxSpine;
+    float currSP;
+    float currHP;
+    public Image healthBar;
+    public Image spineBar;
     Vector3 moveDir;
 
     public float health=100;
@@ -22,6 +31,8 @@ public class playerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        currHP = 100;
+        currSP = 0;
         anim = GetComponent<Animator>();
     }
 
@@ -31,14 +42,21 @@ public class playerMovement : MonoBehaviour
         getParam();
         handleMovement();
         handleRotation();
-      
 
+        manageHealthBars();
         setParam();
 
 
        
     }
+    void manageHealthBars()
+    {
+        currSP =Mathf.LerpUnclamped(currSP,currSpine,Time.deltaTime*3);
+        currHP =Mathf.LerpUnclamped(currHP,currHealth,Time.deltaTime*3);
 
+        spineBar.fillAmount =currSP/maxSpine;
+        healthBar.fillAmount =currHP/maxHealth;
+    }
     void getParam()
     {
         horizontal = Input.GetAxis(InputStatics.horizontal);
