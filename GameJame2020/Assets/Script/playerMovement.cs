@@ -13,6 +13,7 @@ public class playerMovement : MonoBehaviour
     float vertical;
     Vector3 moveDir;
 
+    public float health=100;
     public float moveSpeed=2;
     public GameObject lookAT;
     public LayerMask layerMask;
