@@ -39,6 +39,7 @@ public class IKManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Cursor.visible = false;
         //get and set the lef and right hand target positions for holding the gun
         leftHandTarget =gun.GetComponent<gun1>().leftHandIkPose;
         rightHandTarget =gun.GetComponent<gun1>().rightHandIkPose;
