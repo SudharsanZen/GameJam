@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0, g: 0, b: 0, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.18
@@ -1309,11 +1309,12 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 311
-  runSpeed: 2
+  runSpeed: 2.4
   walkSpeed: 1
   enemyFieldOfView: 60
   enemyViewRange: 10
-  attackRange: 0.4
+  attackRange: 2
+  stopRange: 0.7
 --- !u!1 &567517405
 GameObject:
   m_ObjectHideFlags: 0
@@ -1341,7 +1342,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 1
-  m_Acceleration: 8
+  m_Acceleration: 100
   avoidancePriority: 50
   m_AngularSpeed: 200
   m_StoppingDistance: 1
@@ -2328,6 +2329,11 @@ PrefabInstance:
         type: 3}
       propertyPath: layerMask.m_Bits
       value: 1335
+      objectReference: {fileID: 0}
+    - target: {fileID: 2090386075006935162, guid: da94e81d14bc9a949b15a1fd3bc5635e,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 2.95
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da94e81d14bc9a949b15a1fd3bc5635e, type: 3}

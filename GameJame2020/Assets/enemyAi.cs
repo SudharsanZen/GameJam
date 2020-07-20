@@ -15,6 +15,7 @@ public class enemyAi : MonoBehaviour
     public float enemyFieldOfView=80;
     public float enemyViewRange=10;
     public float attackRange=1f;
+    public float stopRange=0.5f;
     GameObject player;
     NavMeshAgent nMesh;
     
@@ -26,8 +27,10 @@ public class enemyAi : MonoBehaviour
     bool dead=false;
     bool scout=true;
     bool attackOver=false;
+    bool stopRunning=true;
     int currPath = 0;
     float nextScoutStartTime;
+    
     float idleTimeAfterWalk = 1;
     bool cameNearPath = false;
     Vector3 lastDestination;
@@ -48,6 +51,8 @@ public class enemyAi : MonoBehaviour
         sight();
         setParam();
         doEnemyActions();
+        nMesh.stoppingDistance =stopRange;
+       
     }
 
     void doEnemyActions()
@@ -60,7 +65,7 @@ public class enemyAi : MonoBehaviour
                 attack = true;
                 attackPlayer();
             }
-            else if (attackOver)
+            else //if (attackOver)
             {
 
                 followPlayer();
@@ -76,8 +81,10 @@ public class enemyAi : MonoBehaviour
     }
     void followPlayer()
     {
+       if(attackOver)
         attack = false;
         nMesh.speed = runSpeed;
+        stopRunning = false;
         lastDestination = player.transform.position;
         lastDestination.y =transform.position.y;
         if(lastDestination != nMesh.destination)
@@ -87,9 +94,25 @@ public class enemyAi : MonoBehaviour
     void attackPlayer()
     {
         attack = true;
-        nMesh.speed = 0;
+        if ((player.transform.position - transform.position).magnitude < stopRange)
+        {
+            nMesh.velocity = Vector3.zero;
+            nMesh.speed = 0;
+     
+            stopRunning = true;
+        }
+        else
+        {
+            stopRunning = false;
+         
+            nMesh.speed = runSpeed;
+        }
+        Vector3 lookDir = (player.transform.position - transform.position);
+        lookDir.y = 0;
+        lookDir = lookDir.normalized;
 
-        
+        transform.rotation = Quaternion.Slerp(transform.rotation,Quaternion.LookRotation(lookDir,Vector3.up),Time.deltaTime*4);
+
     }
     void setParam()
     {
@@ -105,6 +128,7 @@ public class enemyAi : MonoBehaviour
         anim.SetBool(minionStatics.dead,dead);
         anim.SetBool(minionStatics.playerDead,playerDead);
         anim.SetBool(minionStatics.playerDead,playerDead);
+        anim.SetBool(minionStatics.stopRunning,stopRunning);
     }
 
    
@@ -178,7 +202,7 @@ public class enemyAi : MonoBehaviour
     {
         Vector3 dist = player.transform.position - transform.position;
 
-        if (dist.magnitude < 1)
+        if (dist.magnitude < attackRange)
         {
         
             anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, anim.GetFloat(minionStatics.attack1Weight));
