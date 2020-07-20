@@ -25,15 +25,21 @@ public class playerMovement : MonoBehaviour
     public float health=100;
     public float moveSpeed=2;
     public GameObject lookAT;
+    public GameObject ragDoll;
+    bool ragCreated=false;
+    public bool playerDead=false;
     public LayerMask layerMask;
 
-   
+    GameObject[] playerBody;
+    CapsuleCollider playerCollider;
     // Start is called before the first frame update
     void Start()
     {
+        playerBody=GameObject.FindGameObjectsWithTag("playerBodyMesh");
         currHP = 100;
         currSP = 0;
         anim = GetComponent<Animator>();
+        playerCollider = GetComponent<CapsuleCollider>();
     }
 
     // Update is called once per frame
@@ -49,6 +55,17 @@ public class playerMovement : MonoBehaviour
 
        
     }
+    void disableEverything()
+    {
+        /*disable everything when the player dies.....putacase!!!!*/
+        //this shit is not optimized but who tf cares doe XDDD
+        //feeling cute might just leave this shit here
+        for (int i = 0; i < playerBody.Length; i++)
+        {
+            playerBody[i].GetComponent<SkinnedMeshRenderer>().enabled = false;
+        }
+        playerCollider.enabled = false;
+    }
     void manageHealthBars()
     {
         currSP =Mathf.LerpUnclamped(currSP,currSpine,Time.deltaTime*3);
@@ -56,6 +73,16 @@ public class playerMovement : MonoBehaviour
 
         spineBar.fillAmount =currSP/maxSpine;
         healthBar.fillAmount =currHP/maxHealth;
+        if ((currHealth <= 0 || currSP >= maxSpine) && !ragCreated)
+        {
+            playerDead = true;
+            disableEverything();
+            ragCreated = true;
+            ragDoll=Instantiate(ragDoll);
+            ragDoll.transform.position = transform.position;
+            
+        }
+
     }
     void getParam()
     {

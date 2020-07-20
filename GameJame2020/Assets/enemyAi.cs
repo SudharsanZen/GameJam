@@ -16,9 +16,15 @@ public class enemyAi : MonoBehaviour
     public float enemyViewRange=10;
     public float attackRange=1f;
     public float stopRange=0.5f;
-    GameObject player;
+    public GameObject player;
+    playerMovement plScript;
     NavMeshAgent nMesh;
-    
+    AudioSource audioSource;
+    AudioClip []hurt;
+    AudioClip []playerHurt;
+
+
+
     Animator anim;
     bool playerSpotted=false;
     bool inSight=false;
@@ -37,17 +43,21 @@ public class enemyAi : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        plScript =player.GetComponent<playerMovement>();
         nMesh =GetComponent<NavMeshAgent>();
         nMesh.SetDestination(paths[0].position);
         nMesh.speed =walkSpeed;
-        player = GameObject.FindGameObjectWithTag("Player");
+        //player = GameObject.FindGameObjectWithTag("Player");
         anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        attackOver = anim.GetBool(minionStatics.attackOver);
+        if(anim!=null)
+            attackOver = anim.GetBool(minionStatics.attackOver);
+        else
+            anim = GetComponent<Animator>();
         sight();
         setParam();
         doEnemyActions();
@@ -160,18 +170,18 @@ public class enemyAi : MonoBehaviour
         }
         attack = false;
     }
-
+    float angleBetweenPlayer;
     void sight()
     {
         //checks if there is any obstacles between the player and the mosnter
         //and also checks if the player is in the field of view of the monster and within the range
         Vector3 offset =new Vector3(0,1,0);
-        Debug.DrawLine(transform.position+offset,player.transform.position+offset,Color.green);
+        //Debug.DrawLine(transform.position+offset,player.transform.position+offset,Color.green);
 
-        Debug.DrawRay(transform.position + offset, (Quaternion.Euler(0,enemyFieldOfView,0)* transform.forward)*enemyViewRange , Color.blue);
-        Debug.DrawRay(transform.position + offset, (Quaternion.Euler(0,-enemyFieldOfView,0)* transform.forward)*enemyViewRange , Color.blue);
+        //Debug.DrawRay(transform.position + offset, (Quaternion.Euler(0,enemyFieldOfView,0)* transform.forward)*enemyViewRange , Color.blue);
+        //Debug.DrawRay(transform.position + offset, (Quaternion.Euler(0,-enemyFieldOfView,0)* transform.forward)*enemyViewRange , Color.blue);
 
-        float angleBetweenPlayer =Vector3.SignedAngle(transform.forward,(player.transform.position-transform.position).normalized,Vector3.up);
+        angleBetweenPlayer =Vector3.SignedAngle(transform.forward,(player.transform.position-transform.position).normalized,Vector3.up);
         //print("Angle: "+angleBetweenPlayer);
         if (!Physics.Linecast(transform.position + offset, player.transform.position+offset, layerMask) && (Mathf.Abs(angleBetweenPlayer)<enemyFieldOfView||Input.GetButton(InputStatics.fire)))
         {
@@ -197,18 +207,35 @@ public class enemyAi : MonoBehaviour
         }
     }
 
-
+    bool hitOnce = false;
     void ikHandling()
     {
         Vector3 dist = player.transform.position - transform.position;
 
         if (dist.magnitude < attackRange)
         {
-        
+
             anim.SetIKPositionWeight(AvatarIKGoal.LeftHand, anim.GetFloat(minionStatics.attack1Weight));
-      
+
 
             anim.SetIKPosition(AvatarIKGoal.LeftHand, player.transform.position + new Vector3(0, 0.5f, 0));
+
+            if (anim.GetFloat(minionStatics.attack1Weight) > 0.5f && !hitOnce)
+            {
+                print("hit");
+                if (Mathf.Abs(angleBetweenPlayer) < enemyFieldOfView )
+                {
+                    if (!Physics.Linecast(transform.position + new Vector3(0,0.5f,0), player.transform.position + new Vector3(0, 0.5f, 0), layerMask) && dist.magnitude<attackRange*0.9f)
+                    {
+                        hitOnce = true;
+                        plScript.currHealth -= 10;
+                    }
+                }
+            }
+        }
+        else
+        {
+            hitOnce = false;
         }
     }
 

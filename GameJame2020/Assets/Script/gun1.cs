@@ -19,13 +19,22 @@ public class gun1 : MonoBehaviour
     public GameObject player;
     playerMovement plScript;
     Animator anim;
-    AudioSource audio;
-
+    AudioSource audioSource;
+    Rigidbody rbGun;
+    BoxCollider bcGun;
+    bool playerdead;
+    private void Update()
+    {
+        if (plScript.currSpine >= 100)
+            plScript.currHealth =-1 ;
+    }
     private void Start()
     {
+        bcGun =GetComponent<BoxCollider>();
+        rbGun =GetComponent<Rigidbody>();
         plScript = player.GetComponent<playerMovement>();
         anim = player.GetComponent<Animator>();
-        audio =GetComponent<AudioSource>();
+        audioSource =GetComponent<AudioSource>();
     }
     private void LateUpdate()
     {
@@ -36,16 +45,23 @@ public class gun1 : MonoBehaviour
        
         if (plScript.currSpine < plScript.maxSpine && lastSpineeffectedTime + spinCoolDownTime < Time.time)
             plScript.currSpine = Mathf.LerpUnclamped(plScript.currSpine, 0, Time.deltaTime * 3);
+        if ((plScript.currHealth <= 0 || plScript.currSpine >= 100) && !playerdead)
+        {
+            playerdead = true;
+            bcGun.enabled = true;
+            rbGun.useGravity = true;
+            rbGun.isKinematic = false;
+        }
        
     }
     void MuzzleSound()
     {
-        audio.clip =muzzleSounds[Random.Range(0,muzzleSounds.Count)];
-        audio.Play();
+        audioSource.clip =muzzleSounds[Random.Range(0,muzzleSounds.Count)];
+        audioSource.Play();
     }
     void handleFiering()
     {
-        if (fire && Time.time > nextSHootTime)
+        if (fire && Time.time > nextSHootTime && plScript.currHealth>0 && plScript.currSpine<100)
         {
             lastSpineeffectedTime = Time.time;
             plScript.currHealth -= 0.1f;

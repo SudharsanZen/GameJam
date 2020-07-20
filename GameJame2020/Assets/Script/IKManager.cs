@@ -35,10 +35,12 @@ public class IKManager : MonoBehaviour
     public Vector3 idleOffsetPose;
     public Vector3 aimOffsetPose;
 
-  
+    bool playerDead;
+    playerMovement plScript;
     // Start is called before the first frame update
     void Start()
     {
+        plScript =GetComponent<playerMovement>();
         Cursor.visible = false;
         //get and set the lef and right hand target positions for holding the gun
         leftHandTarget =gun.GetComponent<gun1>().leftHandIkPose;
@@ -51,9 +53,8 @@ public class IKManager : MonoBehaviour
     void Update()
     {
         Aiming = Input.GetButton(InputStatics.aim);
-        
-
-       
+        playerDead =plScript.playerDead;
+                      
     }
 
   
@@ -148,28 +149,32 @@ public class IKManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (rightShoulder == null)
+        if (!playerDead)
         {
-            if (anim == null)
-                anim = GetComponent<Animator>();
-            rightShoulder = anim.GetBoneTransform(HumanBodyBones.RightShoulder);
-        }
-        else
-        {
-            AimPose.position = rightShoulder.position + AimPose.forward * aimOffsetPose.z + AimPose.right * aimOffsetPose.x + AimPose.up * aimOffsetPose.y;
-            IdlePose.position = rightShoulder.position + IdlePose.forward * idleOffsetPose.z + IdlePose.right * idleOffsetPose.x + IdlePose.up * idleOffsetPose.y;
-            AimPose.LookAt(lookAt.position);
-        }
-        if (Aiming)
-        {
-            gun.transform.position = Vector3.Lerp(gun.transform.position, AimPose.position, Time.deltaTime * 100);
-            gun.transform.rotation = Quaternion.Lerp(gun.transform.rotation, AimPose.rotation, Time.deltaTime * 10);
+            
+            if (rightShoulder == null)
+            {
+                if (anim == null)
+                    anim = GetComponent<Animator>();
+                rightShoulder = anim.GetBoneTransform(HumanBodyBones.RightShoulder);
+            }
+            else
+            {
+                AimPose.position = rightShoulder.position + AimPose.forward * aimOffsetPose.z + AimPose.right * aimOffsetPose.x + AimPose.up * aimOffsetPose.y;
+                IdlePose.position = rightShoulder.position + IdlePose.forward * idleOffsetPose.z + IdlePose.right * idleOffsetPose.x + IdlePose.up * idleOffsetPose.y;
+                AimPose.LookAt(lookAt.position);
+            }
+            if (Aiming)
+            {
+                gun.transform.position = Vector3.Lerp(gun.transform.position, AimPose.position, Time.deltaTime * 100);
+                gun.transform.rotation = Quaternion.Lerp(gun.transform.rotation, AimPose.rotation, Time.deltaTime * 10);
 
-        }
-        else
-        {
-            gun.transform.position = Vector3.Lerp(gun.transform.position, IdlePose.position, Time.deltaTime * 100);
-            gun.transform.rotation = Quaternion.Lerp(gun.transform.rotation, IdlePose.rotation, Time.deltaTime * 10);
+            }
+            else
+            {
+                gun.transform.position = Vector3.Lerp(gun.transform.position, IdlePose.position, Time.deltaTime * 100);
+                gun.transform.rotation = Quaternion.Lerp(gun.transform.rotation, IdlePose.rotation, Time.deltaTime * 10);
+            }
         }
     }
 }
