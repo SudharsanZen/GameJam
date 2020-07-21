@@ -30,11 +30,19 @@ public class playerMovement : MonoBehaviour
     public bool playerDead=false;
     public LayerMask layerMask;
 
+    public bool ShoutItHurts=false;
+    public int spineLevel=0;
+    public bool shoutSpineHurts;
+    AudioSource audioSource;
+    AudioClip[] hurt;
+    AudioClip[] playerHurt;
+
     GameObject[] playerBody;
     CapsuleCollider playerCollider;
     // Start is called before the first frame update
     void Start()
     {
+        audioSource =GetComponent<AudioSource>();
         playerBody=GameObject.FindGameObjectsWithTag("playerBodyMesh");
         currHP = 100;
         currSP = 0;
@@ -55,6 +63,14 @@ public class playerMovement : MonoBehaviour
 
        
     }
+    void makeNoise()
+    {
+        if (ShoutItHurts)
+        {
+
+        }
+
+    }
     void disableEverything()
     {
         /*disable everything when the player dies.....putacase!!!!*/
@@ -68,6 +84,7 @@ public class playerMovement : MonoBehaviour
     }
     void manageHealthBars()
     {
+        
         currSP =Mathf.LerpUnclamped(currSP,currSpine,Time.deltaTime*3);
         currHP =Mathf.LerpUnclamped(currHP,currHealth,Time.deltaTime*3);
 

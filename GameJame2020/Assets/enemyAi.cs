@@ -19,9 +19,7 @@ public class enemyAi : MonoBehaviour
     public GameObject player;
     playerMovement plScript;
     NavMeshAgent nMesh;
-    AudioSource audioSource;
-    AudioClip []hurt;
-    AudioClip []playerHurt;
+   
 
 
 
@@ -67,13 +65,14 @@ public class enemyAi : MonoBehaviour
 
     void doEnemyActions()
     {
-        if (playerSpotted)
+        if (playerSpotted && !plScript.playerDead)
         {
             //print((player.transform.position - transform.position).magnitude);
             if ((player.transform.position - transform.position).magnitude < attackRange)
             {
                 attack = true;
                 attackPlayer();
+               
             }
             else //if (attackOver)
             {
@@ -103,18 +102,19 @@ public class enemyAi : MonoBehaviour
     }
     void attackPlayer()
     {
-        attack = true;
+
         if ((player.transform.position - transform.position).magnitude < stopRange)
         {
             nMesh.velocity = Vector3.zero;
             nMesh.speed = 0;
-     
+
             stopRunning = true;
         }
         else
         {
-            stopRunning = false;
+            
          
+            stopRunning = false;
             nMesh.speed = runSpeed;
         }
         Vector3 lookDir = (player.transform.position - transform.position);
@@ -191,8 +191,8 @@ public class enemyAi : MonoBehaviour
         }
         else
         {
-
-            if (timeSinceLastSeen + coolDownInterval < Time.time)
+            
+            if (timeSinceLastSeen + coolDownInterval < Time.time )
             {
                 if (playerSpotted)
                 {
@@ -223,12 +223,13 @@ public class enemyAi : MonoBehaviour
             if (anim.GetFloat(minionStatics.attack1Weight) > 0.5f && !hitOnce)
             {
                 print("hit");
+                hitOnce = true;
+                plScript.currHealth -= 10;
                 if (Mathf.Abs(angleBetweenPlayer) < enemyFieldOfView )
                 {
-                    if (!Physics.Linecast(transform.position + new Vector3(0,0.5f,0), player.transform.position + new Vector3(0, 0.5f, 0), layerMask) && dist.magnitude<attackRange*0.9f)
+                    if (!Physics.Linecast(transform.position + new Vector3(0,0.5f,0), player.transform.position + new Vector3(0, 0.5f, 0), layerMask) && dist.magnitude<attackRange)
                     {
-                        hitOnce = true;
-                        plScript.currHealth -= 10;
+                       
                     }
                 }
             }
