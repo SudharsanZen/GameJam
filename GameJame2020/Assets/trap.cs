@@ -29,9 +29,9 @@ public class trap : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-     
+       
         if (TrapTrigger && Time.time > lastTime + delay)
-        {
+        { 
             count++;
             if (count == 3)
             {
