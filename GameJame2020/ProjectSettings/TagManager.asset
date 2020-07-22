@@ -9,6 +9,9 @@ TagManager:
   - lightSwitch1
   - insects1
   - lightSwitch2
+  - trapGroup1
+  - spawn1
+  - insects2
   layers:
   - Default
   - TransparentFX
@@ -21,7 +24,7 @@ TagManager:
   - PostProcessing
   - actor
   - enemy
-  - 
+  - insects
   - 
   - 
   - 

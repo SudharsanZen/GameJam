@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class enemyAi : MonoBehaviour
 {
+    public bool trapHit;
     public GameObject ragdoll;
     public List<Transform> paths;
     public LayerMask layerMask;
@@ -31,7 +32,7 @@ public class enemyAi : MonoBehaviour
 
 
     Animator anim;
-    bool playerSpotted=false;
+    public bool playerSpotted=false;
     bool inSight=false;
     bool attack=false;
     bool playerDead=false;

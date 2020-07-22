@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class gun1 : MonoBehaviour
 {
+    public LayerMask insectMask;
     public float spinCoolDownTime=2f;
     float lastSpineeffectedTime;
     public GameObject bullet;
@@ -101,7 +102,7 @@ public class gun1 : MonoBehaviour
                     
                 }
 
-                if (hit.collider.gameObject.tag == "insects1")
+                if (hit.collider.gameObject.layer==LayerMask.NameToLayer("insects"))
                 {
                     print("insectHit");
                     hit.collider.gameObject.GetComponent<insects>().currHealth -= 30f;

@@ -17,12 +17,25 @@ public class insectTrigger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if ((enemyCommon.player.transform.position - transform.position).magnitude < 3)
+        {
+            if (shouldPressE)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    activateInsetcs();
+                }
+            }
+            else
+            {
+                activateInsetcs();
+            }
+        }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (!triggeredOnce)
+        if (!triggeredOnce && other.tag.Equals("Player"))
         {
             if (shouldPressE)
             {

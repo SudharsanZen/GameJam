@@ -425,7 +425,8 @@ Transform:
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -0.9689102, y: -0.4798056, z: -1.0197163}
   m_LocalScale: {x: 100, y: 99.99988, z: 99.99988}
-  m_Children: []
+  m_Children:
+  - {fileID: 6085682327335932035}
   m_Father: {fileID: 3917345114068697756}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
@@ -483,7 +484,7 @@ BoxCollider:
   m_GameObject: {fileID: 7584368666429192673}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 0.01890228, y: 0.0019999996, z: 0.026051803}
   m_Center: {x: 0.009843865, y: 0.0009997095, z: 0.011269694}
@@ -641,3 +642,47 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &9203017290851068493
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6085682327335932035}
+  - component: {fileID: 8985064426740162487}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6085682327335932035
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9203017290851068493}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0.004746625, y: -0.0073744683, z: 0.0031982446}
+  m_LocalScale: {x: 0.01, y: 0.010000014, z: 0.010000014}
+  m_Children: []
+  m_Father: {fileID: 7584368666429023681}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8985064426740162487
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9203017290851068493}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2.26, y: 2.68, z: 0.46}
+  m_Center: {x: 0.52, y: 0.84, z: -0.82}
