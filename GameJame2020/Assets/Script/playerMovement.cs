@@ -32,10 +32,13 @@ public class playerMovement : MonoBehaviour
 
     public bool ShoutItHurts=false;
     public int spineLevel=0;
+    int prevSpineLevel;
     public bool shoutSpineHurts;
     AudioSource audioSource;
-    AudioClip[] hurt;
-    AudioClip[] playerHurt;
+    public AudioClip[] spineHurt;
+    public AudioClip spineDeath;
+    public AudioClip[] DeathSounds;
+    public AudioClip[] playerHurt;
 
     GameObject[] playerBody;
     CapsuleCollider playerCollider;
@@ -53,22 +56,64 @@ public class playerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        makeNoise();
         getParam();
         handleMovement();
         handleRotation();
 
         manageHealthBars();
         setParam();
-
-
-       
     }
+    bool playDeadNoise=true;
     void makeNoise()
     {
-        if (ShoutItHurts)
+        if (currSpine >= 100 && playDeadNoise)
         {
-
+            playDeadNoise = false;
+            audioSource.clip = spineDeath;
+            audioSource.Play();
         }
+        else if (currHealth <= 0 && playDeadNoise)
+        {
+            playDeadNoise = false;
+            audioSource.clip = DeathSounds[Random.Range(0, DeathSounds.Length)];
+            audioSource.Play();
+        }
+        else if (ShoutItHurts)
+        {
+            ShoutItHurts = false;
+            audioSource.clip = playerHurt[Random.Range(0, playerHurt.Length)];
+            audioSource.Play();
+            anim.SetLayerWeight(1, 1);
+            anim.Play("hit",1);
+        }
+        else
+        {
+            if(anim.GetCurrentAnimatorStateInfo(1).normalizedTime>0.8f)
+                anim.SetLayerWeight(1, Mathf.Lerp(anim.GetLayerWeight(1),0,Time.deltaTime*10));
+        }
+
+        if (currSpine >= 75)
+        {
+            spineLevel = 2;
+        }
+        else if (currSpine >= 50)
+        {
+            spineLevel = 1;
+        }
+        else if (currSpine >= 25)
+        {
+            spineLevel = 0;
+        }
+
+
+        if (spineLevel > prevSpineLevel)
+        {
+            prevSpineLevel=spineLevel;
+            audioSource.clip =spineHurt[spineLevel];
+            audioSource.Play();
+        }
+        
 
     }
     void disableEverything()

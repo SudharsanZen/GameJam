@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class gun1 : MonoBehaviour
 {
-    public float spinCoolDownTime=0.5f;
+    public float spinCoolDownTime=2f;
     float lastSpineeffectedTime;
     public GameObject bullet;
+    public float gunRange=20;
     public Transform leftHandIkPose;
     public Transform rightHandIkPose;
     public Transform lookAT;
@@ -75,18 +76,39 @@ public class gun1 : MonoBehaviour
             muzzle.transform.position = transform.position + transform.forward * 0.8f;
             muzzle.transform.rotation = transform.rotation * Quaternion.Euler(180, 0, 0);
             muzzle.transform.SetParent(transform);
-            GameObject b = Instantiate(bullet);
+            /*GameObject b = Instantiate(bullet);
             b.transform.position = transform.position + transform.forward * 0.8f;
             b.AddComponent<Rigidbody>();
             b.GetComponent<Rigidbody>().velocity = (lookAT.position - b.transform.position).normalized * 100;
             b.GetComponent<Rigidbody>().useGravity = false;
-            Destroy(b, 3);
+            Destroy(b, 3);*/
             Destroy(muzzle, (1 / numOfBulletsPerSec));
 
             nextSHootTime = Time.time + 1 / numOfBulletsPerSec;
 
-            Ray ray = new Ray(b.transform.position, (lookAT.position - b.transform.position).normalized);
-            Debug.DrawRay(ray.origin, ray.direction * 10);
+            Ray ray = new Ray(transform.position, (lookAT.position - transform.position).normalized);
+            Debug.DrawRay(ray.origin, ray.direction * gunRange);
+            RaycastHit hit;
+           
+            bool somethingShot =Physics.Raycast(ray,out hit,gunRange);
+            lookAT.position = hit.point;
+            if (somethingShot)
+            {
+                if (hit.collider.gameObject.tag == "enemy")
+                {
+                    //print("enemy hit");
+                    hit.collider.gameObject.GetComponent<enemyAi>().currHealth -= 2f;
+                    
+                }
+
+                if (hit.collider.gameObject.tag == "insects1")
+                {
+                    print("insectHit");
+                    hit.collider.gameObject.GetComponent<insects>().currHealth -= 30f;
+
+                }
+
+            }
 
             if (Input.GetButton(InputStatics.fire))
             {

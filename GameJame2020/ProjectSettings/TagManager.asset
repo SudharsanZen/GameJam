@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - playerBodyMesh
+  - enemy
+  - lightSwitch1
+  - insects1
+  - lightSwitch2
   layers:
   - Default
   - TransparentFX

@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class enemyAi : MonoBehaviour
 {
+    public GameObject ragdoll;
     public List<Transform> paths;
     public LayerMask layerMask;
-
+    public GameObject healthBar;
+    
     public float runSpeed=1;
     public float walkSpeed=2;
     float timeSinceLastSeen=0;
@@ -16,6 +19,10 @@ public class enemyAi : MonoBehaviour
     public float enemyViewRange=10;
     public float attackRange=1f;
     public float stopRange=0.5f;
+    float prevHealth;
+    public float currHealth=100;
+    public float maxHealth=100;
+
     public GameObject player;
     playerMovement plScript;
     NavMeshAgent nMesh;
@@ -34,13 +41,21 @@ public class enemyAi : MonoBehaviour
     bool stopRunning=true;
     int currPath = 0;
     float nextScoutStartTime;
-    
+    float initRunspeed;
     float idleTimeAfterWalk = 1;
     bool cameNearPath = false;
+
+    bool hitOnce = false;
     Vector3 lastDestination;
+    Image healthImage;
     // Start is called before the first frame update
     void Start()
     {
+       
+        healthImage =healthBar.GetComponent<Image>();
+        initRunspeed = runSpeed;
+        currHealth = maxHealth;
+        prevHealth = maxHealth;
         plScript =player.GetComponent<playerMovement>();
         nMesh =GetComponent<NavMeshAgent>();
         nMesh.SetDestination(paths[0].position);
@@ -48,23 +63,80 @@ public class enemyAi : MonoBehaviour
         //player = GameObject.FindGameObjectWithTag("Player");
         anim = GetComponent<Animator>();
     }
-
+    bool setAudio = false;
     // Update is called once per frame
     void Update()
     {
-        if(anim!=null)
-            attackOver = anim.GetBool(minionStatics.attackOver);
+        if (playerSpotted)
+        {
+            if (setAudio && !audioManager.chaseOn)
+                audioManager.chaseOn = true;
+                
+            setAudio = true;
+            audioManager.chaseOn = playerSpotted;
+        }
+        else if(setAudio)
+        {
+            audioManager.chaseOn = playerSpotted;
+        }
+
+        healthImage.fillAmount =currHealth/maxHealth;
+        healthBar.transform.LookAt(Camera.main.transform.position);
+        if (!dead)
+        {
+            if (anim != null)
+                attackOver = anim.GetBool(minionStatics.attackOver);
+            else
+                anim = GetComponent<Animator>();
+            sight();
+            setParam();
+            doEnemyActions();
+            nMesh.stoppingDistance = stopRange;
+        }
         else
-            anim = GetComponent<Animator>();
-        sight();
-        setParam();
-        doEnemyActions();
-        nMesh.stoppingDistance =stopRange;
+        {
+            audioManager.chaseOn =false;
+            ragdoll =Instantiate(ragdoll);
+           ragdoll.transform.position = transform.position;
+           ragdoll.transform.rotation = transform.rotation;
+            for (int i = 0; i < ragdoll.transform.childCount; i++)
+            {
+                Transform org =transform.GetChild(i);
+                Transform rg =ragdoll.transform.GetChild(i);
+                if (org != null && rg != null)
+                {
+                    rg.transform.localPosition = org.transform.localPosition;
+                    rg.transform.localRotation = org.transform.localRotation;
+                }
+            }
+            Destroy(gameObject);
+        }
        
     }
-
+    float lastChange=0;
+    float slowDownTime=0.2f;
     void doEnemyActions()
     {
+        if (prevHealth > currHealth )
+        {
+            prevHealth = currHealth;
+            anim.SetLayerWeight(2, 1);
+            anim.Play("hit", 2);
+            lastChange = Time.time;
+        }
+        else
+        {
+            if (anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.8f)
+                anim.SetLayerWeight(2, Mathf.Lerp(anim.GetLayerWeight(2), 0, Time.deltaTime * 10));
+        }
+        if (lastChange + slowDownTime > Time.time)
+        {
+            runSpeed = initRunspeed*0.8f;
+        }
+        else
+        {
+            runSpeed = initRunspeed;
+        }
         if (playerSpotted && !plScript.playerDead)
         {
             //print((player.transform.position - transform.position).magnitude);
@@ -72,6 +144,7 @@ public class enemyAi : MonoBehaviour
             {
                 attack = true;
                 attackPlayer();
+                
                
             }
             else //if (attackOver)
@@ -86,6 +159,10 @@ public class enemyAi : MonoBehaviour
         {
 
             followPath();
+        }
+        if (currHealth <= 0)
+        {
+            dead = true;
         }
     }
     void followPlayer()
@@ -102,6 +179,40 @@ public class enemyAi : MonoBehaviour
     }
     void attackPlayer()
     {
+        Vector3 dist = player.transform.position - transform.position;
+
+        if (dist.magnitude < attackRange)
+        {
+
+            anim.Play("attakc_Minion", 1);
+
+
+            if (anim.GetFloat(minionStatics.attack1Weight) > 0.9f && !hitOnce)
+            {
+                print("hit");
+                hitOnce = true;
+                plScript.currHealth -= 10;
+                plScript.ShoutItHurts = true;
+                /*if (Mathf.Abs(angleBetweenPlayer) < enemyFieldOfView)
+                {
+                    if (!Physics.Linecast(transform.position + new Vector3(0, 0.5f, 0), player.transform.position + new Vector3(0, 0.5f, 0), layerMask) && dist.magnitude < attackRange)
+                    {
+
+                    }
+                }*/
+            }
+
+
+        }
+        //if (anim.GetFloat("hitReset") > 0.9f)
+        // hitOnce = false;
+        AnimatorStateInfo aStateInfo = anim.GetCurrentAnimatorStateInfo(1);
+        if (aStateInfo.IsName("attakc_Minion"))
+        {
+            if (aStateInfo.normalizedTime > 0.9f)
+                hitOnce=false;
+        }
+
 
         if ((player.transform.position - transform.position).magnitude < stopRange)
         {
@@ -185,6 +296,7 @@ public class enemyAi : MonoBehaviour
         //print("Angle: "+angleBetweenPlayer);
         if (!Physics.Linecast(transform.position + offset, player.transform.position+offset, layerMask) && (Mathf.Abs(angleBetweenPlayer)<enemyFieldOfView||Input.GetButton(InputStatics.fire)))
         {
+            
             lastDestination = player.transform.position;
             timeSinceLastSeen = Time.time;
             playerSpotted = true;
@@ -196,6 +308,7 @@ public class enemyAi : MonoBehaviour
             {
                 if (playerSpotted)
                 {
+                   
                     nMesh.destination = paths[currPath].position;
                 }
                 if(Physics.Linecast(transform.position + offset, player.transform.position + offset, layerMask))
@@ -207,7 +320,6 @@ public class enemyAi : MonoBehaviour
         }
     }
 
-    bool hitOnce = false;
     void ikHandling()
     {
         Vector3 dist = player.transform.position - transform.position;
@@ -220,24 +332,8 @@ public class enemyAi : MonoBehaviour
 
             anim.SetIKPosition(AvatarIKGoal.LeftHand, player.transform.position + new Vector3(0, 0.5f, 0));
 
-            if (anim.GetFloat(minionStatics.attack1Weight) > 0.5f && !hitOnce)
-            {
-                print("hit");
-                hitOnce = true;
-                plScript.currHealth -= 10;
-                if (Mathf.Abs(angleBetweenPlayer) < enemyFieldOfView )
-                {
-                    if (!Physics.Linecast(transform.position + new Vector3(0,0.5f,0), player.transform.position + new Vector3(0, 0.5f, 0), layerMask) && dist.magnitude<attackRange)
-                    {
-                       
-                    }
-                }
-            }
         }
-        else
-        {
-            hitOnce = false;
-        }
+       
     }
 
     private void OnAnimatorIK(int layerIndex)
