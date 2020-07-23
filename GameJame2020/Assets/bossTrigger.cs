@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class bossTrigger : MonoBehaviour
 {
+    bool enabledSwitch;
+    public GameObject switchDisable;
     public GameObject enemyCommonUpdate;
     public AudioClip chaseMusicStart;
     public AudioClip chaseMusic;
@@ -25,6 +27,13 @@ public class bossTrigger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if ((enemyCommon.player.transform.position - transform.position).magnitude < 4)
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                trigger = true;
+            }
+        }
         if (trigger)
         {
             if (!xuePioPlayed)
@@ -49,15 +58,26 @@ public class bossTrigger : MonoBehaviour
         {
             lastTime = Time.time;
         }
-    }
 
+        if (done)
+        {
+            if (enemy == null && !enabledSwitch)
+            {
+                switchDisable.GetComponent<doorSwitch>().enabled = true;
+                enabledSwitch = true;
+            }
+        }
+    }
+    GameObject enemy;
     public void GetChildObject(Transform parent, string _tag)
     {
         for (int i = 0; i < parent.childCount; i++)
         {
+            
             Transform child = parent.GetChild(i);
             if (child.tag == _tag)
             {
+                enemy=parent.GetChild(i).gameObject;
                 enemyAi ai = child.gameObject.GetComponent<enemyAi>();
                 ai.playerSpotted = true;
                 ai.player = enemyCommon.player;
