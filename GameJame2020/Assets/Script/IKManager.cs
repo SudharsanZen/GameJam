@@ -6,6 +6,8 @@ using UnityEngine;
 public class IKManager : MonoBehaviour
 {
     Animator anim;
+    public GameObject footStepHolder;
+    AudioSource footSteps;
     public GameObject gun;
 
     public Transform lookAt;
@@ -40,6 +42,7 @@ public class IKManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        footSteps =footStepHolder.GetComponent<AudioSource>();
         plScript =GetComponent<playerMovement>();
         Cursor.visible = false;
         //get and set the lef and right hand target positions for holding the gun
@@ -102,7 +105,8 @@ public class IKManager : MonoBehaviour
        
     }
 
-
+    bool playL;
+    bool playR;
     void FootIk()
     {
         float rweight = anim.GetFloat("rightFootWeight");
@@ -118,6 +122,11 @@ public class IKManager : MonoBehaviour
         Debug.DrawRay(Lray.origin, Lray.direction * legRayDist);
         if (Physics.Raycast(Lray, out hit, legRayDist, layerMask))
         {
+            if (!playL && lweight>0.9f)
+            {
+                playL = true;
+                footSteps.Play();
+            }
             Vector3 footPose = hit.point;
             footPose.y += footOffset;
             //print(hit.distance);
@@ -126,12 +135,18 @@ public class IKManager : MonoBehaviour
             anim.SetIKRotation(AvatarIKGoal.LeftFoot, Quaternion.LookRotation(-forward, hit.normal));
 
         }
-
+        if (lweight < 0.5f)
+            playL=false;
 
         Ray Rray = new Ray(anim.GetIKPosition(AvatarIKGoal.RightFoot) + Vector3.up, Vector3.down);
         Debug.DrawRay(Rray.origin, Rray.direction * legRayDist);
         if (Physics.Raycast(Rray, out hit, legRayDist, layerMask))
         {
+            if (!playR && rweight > 0.9f)
+            {
+                playR = true;
+                footSteps.Play();
+            }
             Vector3 footPose = hit.point;
             footPose.y +=footOffset;
             //print(hit.distance);
@@ -140,6 +155,8 @@ public class IKManager : MonoBehaviour
             anim.SetIKRotation(AvatarIKGoal.RightFoot, Quaternion.LookRotation(-forward, hit.normal));
 
         }
+        if (rweight < 0.5f)
+            playR = false;
         anim.SetIKHintPositionWeight(AvatarIKHint.RightKnee, rweight);
         anim.SetIKHintPosition(AvatarIKHint.RightKnee, rightLegHint.position);
         anim.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, lweight);

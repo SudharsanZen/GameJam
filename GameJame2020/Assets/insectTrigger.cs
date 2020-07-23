@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class insectTrigger : MonoBehaviour
 {
+
     public bool shouldPressE = false;
     public string insectGroupName="insects1";
     bool triggeredOnce;

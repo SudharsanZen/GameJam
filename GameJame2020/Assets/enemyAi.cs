@@ -6,6 +6,14 @@ using UnityEngine.UI;
 
 public class enemyAi : MonoBehaviour
 {
+    public AudioSource deathNoise;
+    public AudioSource slashNoise;
+    public AudioSource footSteps;
+    public AudioSource lowHealthGrunt;
+    public AudioSource monsterHurt;
+    public float footOffset = 0.1f;
+    public Transform rightLegHint;
+    public Transform leftLegHint;
     public bool trapHit;
     public GameObject ragdoll;
     public List<Transform> paths;
@@ -68,8 +76,11 @@ public class enemyAi : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (playerSpotted)
+        
+        
+        /*if (playerSpotted)
         {
+            enemyCommon.playerSpotted = true;
             if (setAudio && !audioManager.chaseOn)
                 audioManager.chaseOn = true;
                 
@@ -79,12 +90,13 @@ public class enemyAi : MonoBehaviour
         else if(setAudio)
         {
             audioManager.chaseOn = playerSpotted;
-        }
+        }*/
 
         healthImage.fillAmount =currHealth/maxHealth;
         healthBar.transform.LookAt(Camera.main.transform.position);
         if (!dead)
         {
+           
             if (anim != null)
                 attackOver = anim.GetBool(minionStatics.attackOver);
             else
@@ -96,8 +108,9 @@ public class enemyAi : MonoBehaviour
         }
         else
         {
-            audioManager.chaseOn =false;
-            ragdoll =Instantiate(ragdoll);
+
+           
+           ragdoll =Instantiate(ragdoll);
            ragdoll.transform.position = transform.position;
            ragdoll.transform.rotation = transform.rotation;
             for (int i = 0; i < ragdoll.transform.childCount; i++)
@@ -110,23 +123,43 @@ public class enemyAi : MonoBehaviour
                     rg.transform.localRotation = org.transform.localRotation;
                 }
             }
+            deathNoise.Play();
             Destroy(gameObject);
         }
        
     }
     float lastChange=0;
+    bool lowHealthplay=true;
     float slowDownTime=0.2f;
+    bool playHurt=false;
+    float nextLowPlay = 50;
     void doEnemyActions()
     {
+        if (currHealth < nextLowPlay && lowHealthplay)
+        {
+            lowHealthplay = false;
+            print("low health");
+            lowHealthGrunt.Play();
+        }
+        else if (!lowHealthplay && currHealth > nextLowPlay)
+        {
+            lowHealthplay = true;
+        }
         if (prevHealth > currHealth )
         {
             prevHealth = currHealth;
             anim.SetLayerWeight(2, 1);
             anim.Play("hit", 2);
             lastChange = Time.time;
+            if (playHurt)
+            {
+                playHurt = false;
+                monsterHurt.Play();
+            }
         }
         else
         {
+            playHurt = true;
             if (anim.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.8f)
                 anim.SetLayerWeight(2, Mathf.Lerp(anim.GetLayerWeight(2), 0, Time.deltaTime * 10));
         }
@@ -178,6 +211,7 @@ public class enemyAi : MonoBehaviour
             nMesh.SetDestination(lastDestination);
        
     }
+    bool playSlashNoise = false;
     void attackPlayer()
     {
         Vector3 dist = player.transform.position - transform.position;
@@ -190,7 +224,7 @@ public class enemyAi : MonoBehaviour
 
             if (anim.GetFloat(minionStatics.attack1Weight) > 0.9f && !hitOnce)
             {
-                print("hit");
+               // print("hit");
                 hitOnce = true;
                 plScript.currHealth -= 10;
                 plScript.ShoutItHurts = true;
@@ -208,10 +242,24 @@ public class enemyAi : MonoBehaviour
         //if (anim.GetFloat("hitReset") > 0.9f)
         // hitOnce = false;
         AnimatorStateInfo aStateInfo = anim.GetCurrentAnimatorStateInfo(1);
+        
         if (aStateInfo.IsName("attakc_Minion"))
         {
+            if (aStateInfo.normalizedTime < 0.1f && !playSlashNoise)
+            {
+                playSlashNoise = true;
+            }
             if (aStateInfo.normalizedTime > 0.9f)
-                hitOnce=false;
+            {
+                playSlashNoise = false;
+                hitOnce = false;
+            }
+
+            if (playSlashNoise)
+            {
+                slashNoise.Play();
+                playSlashNoise = false;
+            }
         }
 
 
@@ -341,5 +389,66 @@ public class enemyAi : MonoBehaviour
     {
         if (attack)
             ikHandling();
+        FootIk();
     }
+    
+    bool playL;
+    bool playR;
+    void FootIk()
+    {
+        float legRayDist = 2;
+        float rweight = anim.GetFloat("rightFootWeight");
+        float lweight = anim.GetFloat("leftFootWeight");
+
+        anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, lweight);
+        anim.SetIKRotationWeight(AvatarIKGoal.LeftFoot, lweight);
+
+        anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, rweight);
+        anim.SetIKRotationWeight(AvatarIKGoal.RightFoot, rweight);
+        RaycastHit hit;
+        Ray Lray = new Ray(anim.GetIKPosition(AvatarIKGoal.LeftFoot) + Vector3.up, Vector3.down);
+        Debug.DrawRay(Lray.origin, Lray.direction * legRayDist);
+        if (Physics.Raycast(Lray, out hit, legRayDist, layerMask))
+        {
+            if (!playL && lweight > 0.9f)
+            {
+                playL = true;
+                footSteps.Play();
+            }
+            Vector3 footPose = hit.point;
+            footPose.y += footOffset;
+            //print(hit.distance);
+            anim.SetIKPosition(AvatarIKGoal.LeftFoot, footPose);
+            Vector3 forward = Vector3.Cross(anim.GetBoneTransform(HumanBodyBones.LeftFoot).right, hit.normal);
+            anim.SetIKRotation(AvatarIKGoal.LeftFoot, Quaternion.LookRotation(-forward, hit.normal));
+
+        }
+        if (lweight < 0.5f)
+            playL = false;
+
+        Ray Rray = new Ray(anim.GetIKPosition(AvatarIKGoal.RightFoot) + Vector3.up, Vector3.down);
+        Debug.DrawRay(Rray.origin, Rray.direction * legRayDist);
+        if (Physics.Raycast(Rray, out hit, legRayDist, layerMask))
+        {
+            if (!playR && rweight > 0.9f)
+            {
+                playR = true;
+                footSteps.Play();
+            }
+            Vector3 footPose = hit.point;
+            footPose.y += footOffset;
+            //print(hit.distance);
+            anim.SetIKPosition(AvatarIKGoal.RightFoot, footPose);
+            Vector3 forward = Vector3.Cross(anim.GetBoneTransform(HumanBodyBones.RightFoot).right, hit.normal);
+            anim.SetIKRotation(AvatarIKGoal.RightFoot, Quaternion.LookRotation(-forward, hit.normal));
+
+        }
+        if (rweight < 0.5f)
+            playR = false;
+        anim.SetIKHintPositionWeight(AvatarIKHint.RightKnee, rweight);
+        anim.SetIKHintPosition(AvatarIKHint.RightKnee, rightLegHint.position);
+        anim.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, lweight);
+        anim.SetIKHintPosition(AvatarIKHint.LeftKnee, leftLegHint.position);
+    }
+
 }

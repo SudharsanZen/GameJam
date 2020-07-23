@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class playerMovement : MonoBehaviour
 {
+    public bool invincible;
     Animator anim;
     bool onLocomotion;
     bool walking;
@@ -56,6 +57,11 @@ public class playerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (invincible)
+        {
+            currSpine = 0;
+            currHealth = 100;
+        }
         makeNoise();
         getParam();
         handleMovement();
