@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class playerMovement : MonoBehaviour
 {
+    public bool gameComplete=false;
     public bool invincible;
     Animator anim;
     bool onLocomotion;
@@ -53,10 +54,27 @@ public class playerMovement : MonoBehaviour
         anim = GetComponent<Animator>();
         playerCollider = GetComponent<CapsuleCollider>();
     }
-
+    float last;
     // Update is called once per frame
     void Update()
     {
+        if (gameComplete)
+        {
+            if (last + 1 < Time.time)
+            {
+              
+                GetComponent<Rigidbody>().isKinematic=true;
+                enemyCommon.doVictoryDance = true;
+                anim.applyRootMotion = true;
+                moveSpeed = 0;
+                anim.SetBool("gameComplete", true);
+                return;
+            }
+        }
+        else
+        {
+            last=Time.time;
+        }
         if (invincible)
         {
             currSpine = 0;

@@ -27,6 +27,13 @@ public class gun1 : MonoBehaviour
     bool playerdead;
     private void Update()
     {
+        if (enemyCommon.doVictoryDance)
+        {
+            //playerdead = true;
+            bcGun.enabled = true;
+            rbGun.useGravity = true;
+            rbGun.isKinematic = false;
+        }
         if (plScript.currSpine >= 100)
             plScript.currHealth =-1 ;
     }
@@ -54,6 +61,7 @@ public class gun1 : MonoBehaviour
             rbGun.useGravity = true;
             rbGun.isKinematic = false;
         }
+       
        
     }
     void MuzzleSound()

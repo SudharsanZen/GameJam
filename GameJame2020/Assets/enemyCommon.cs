@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class enemyCommon : MonoBehaviour
 {
+    public static bool doVictoryDance;
     public static GameObject player;
     public static bool playerSpotted;
     public static playerMovement plScript;

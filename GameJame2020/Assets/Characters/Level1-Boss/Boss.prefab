@@ -479,7 +479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 770eee15cbc9ae244abe6130f9f91ce9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerDamage: 30
+  playerDamage: 10
   deathNoise: {fileID: 3248955815100028330}
   slashNoise: {fileID: 3248955815084581726}
   footSteps: {fileID: 3248955816527850867}
@@ -504,7 +504,7 @@ MonoBehaviour:
   attackRange: 2
   stopRange: 1.5
   currHealth: 100
-  maxHealth: 1000
+  maxHealth: 200
   player: {fileID: 0}
   playerSpotted: 0
 --- !u!136 &3248955815083352987

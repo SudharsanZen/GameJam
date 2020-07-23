@@ -17,7 +17,7 @@ public class cameraController : MonoBehaviour
         followTarget = player.transform;
         initOffset =transform.position-followTarget.position;
     }
-
+    float ang = 5;
     // Update is called once per frame
     void Update()
     {
@@ -27,9 +27,23 @@ public class cameraController : MonoBehaviour
             transform.position = Vector3.Lerp(transform.position, followTarget.position + initOffset, Time.deltaTime * camFollowSpeed);
             lastPos = transform.position;
         }
-        else
+        if(plScript.currHealth < 0 || enemyCommon.doVictoryDance)
         {
-            transform.position = Vector3.Lerp(transform.position, lastPos+transform.forward*1, Time.deltaTime * camFollowSpeed);
+
+            if (enemyCommon.doVictoryDance)
+            {
+                ang++;
+                if (ang > 360)
+                    ang = 0;
+                Quaternion rot = Quaternion.Euler(0, ang, 0);
+                Vector3 newPos = rot * (player.transform.forward) * 2;
+                transform.position = Vector3.Lerp(transform.position, followTarget.position + newPos, Time.deltaTime * 10);
+                transform.LookAt(followTarget.position);
+            }
+            else
+            {
+                transform.position = Vector3.Lerp(transform.position, lastPos + transform.forward * 1, Time.deltaTime * camFollowSpeed);
+            }
         }
 
     }

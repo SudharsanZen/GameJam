@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class bossTrigger : MonoBehaviour
 {
+    
     bool enabledSwitch;
     public GameObject switchDisable;
     public GameObject enemyCommonUpdate;

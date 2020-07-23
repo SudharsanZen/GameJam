@@ -67,7 +67,7 @@ public class IKManager : MonoBehaviour
         if (anim)
         {
             
-            if (ikActive)
+            if (ikActive && !enemyCommon.doVictoryDance)
             {
                
                 if (Aiming)
@@ -166,7 +166,7 @@ public class IKManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!playerDead)
+        if (!playerDead && !enemyCommon.doVictoryDance)
         {
             
             if (rightShoulder == null)
