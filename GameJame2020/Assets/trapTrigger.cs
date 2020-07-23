@@ -27,7 +27,7 @@ public class trapTrigger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if ((enemyCommon.player.transform.position - transform.position).magnitude < 2)
+        if ((enemyCommon.player.transform.position - transform.position).magnitude < 3)
         {
             if (Input.GetKeyDown(KeyCode.E))
             {

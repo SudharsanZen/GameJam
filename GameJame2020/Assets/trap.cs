@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class trap : MonoBehaviour
 {
+    public AudioSource aud;
     public Vector3 rayOriginOffset;
     public Vector3 rayDistancing;
     Vector3 originalPose;
@@ -35,6 +36,7 @@ public class trap : MonoBehaviour
             count++;
             if (count == 3)
             {
+                aud.Play();
                 hitRays();
             }
             if (!timeSet)
