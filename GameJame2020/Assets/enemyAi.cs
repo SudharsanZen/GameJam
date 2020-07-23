@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class enemyAi : MonoBehaviour
 {
+    public float playerDamage = 10;
     public AudioSource deathNoise;
     public AudioSource slashNoise;
     public AudioSource footSteps;
@@ -226,7 +227,7 @@ public class enemyAi : MonoBehaviour
             {
                // print("hit");
                 hitOnce = true;
-                plScript.currHealth -= 10;
+                plScript.currHealth -= playerDamage;
                 plScript.ShoutItHurts = true;
                 /*if (Mathf.Abs(angleBetweenPlayer) < enemyFieldOfView)
                 {

@@ -13,6 +13,7 @@ TagManager:
   - spawn1
   - insects2
   - lightSwitch3
+  - trapGroup2
   layers:
   - Default
   - TransparentFX
